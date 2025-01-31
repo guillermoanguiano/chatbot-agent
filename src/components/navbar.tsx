@@ -3,7 +3,8 @@
 import { ModeToggle } from "./theme-toggle-button";
 import { Button } from "./ui/button";
 import { UserCircle } from "lucide-react";
-import { SidebarTrigger, useSidebar } from "./ui/sidebar";
+import { useSidebar } from "./ui/sidebar";
+import { ActionButtons } from "./actions-buttons";
 
 // Dummy user data
 const user = {
@@ -13,11 +14,13 @@ const user = {
 };
 
 export default function Navbar() {
-  const { open } = useSidebar();
+  const { open, isMobile } = useSidebar();
+
   return (
     <header className="sticky top-0 z-50 flex h-16 w-full shrink-0 items-center justify-between border-b bg-background px-4">
-      {!open && <SidebarTrigger />}
-
+      <div className="flex items-center">
+        {(!open || isMobile) && <ActionButtons variant="navbar" />}
+      </div>
       <div className="flex items-center gap-4">
         <div className="hidden md:block">
           <p className="text-sm font-medium">{user.name}</p>

@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import {
   Sidebar,
   SidebarContent,
@@ -10,9 +11,10 @@ import {
   SidebarMenuButton,
   SidebarHeader,
   SidebarSeparator,
+  useSidebar,
 } from "./ui/sidebar";
-import { Button } from "./ui/button";
-import { PlusCircle, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { ActionButtons } from "./actions-buttons";
 
 // Dummy data for recent chats
 const recentChats = [
@@ -37,20 +39,14 @@ const recentChats = [
 ];
 
 export function AppSidebar() {
+  const { open, openMobile, isMobile } = useSidebar();
+
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
-        <div>
-          <Button className="w-full justify-start gap-2">
-            <PlusCircle size={16} />
-            New Chat
-          </Button>
-
-          <Button className="w-full justify-start gap-2">
-            <PlusCircle size={16} />
-            
-          </Button>
-        </div>
+      {(open || (openMobile && isMobile)) && (
+          <ActionButtons variant="sidebar" />
+        )}
       </SidebarHeader>
 
       <SidebarSeparator />

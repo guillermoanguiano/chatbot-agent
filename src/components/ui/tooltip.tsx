@@ -1,15 +1,17 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+import * as React from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import { Button } from "./button";
+import { LucideIcon } from "lucide-react";
 
-const TooltipProvider = TooltipPrimitive.Provider
+const TooltipProvider = TooltipPrimitive.Provider;
 
-const Tooltip = TooltipPrimitive.Root
+const Tooltip = TooltipPrimitive.Root;
 
-const TooltipTrigger = TooltipPrimitive.Trigger
+const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
@@ -26,7 +28,54 @@ const TooltipContent = React.forwardRef<
       {...props}
     />
   </TooltipPrimitive.Portal>
-))
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
+));
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+interface TooltipButtonProps {
+  icon: LucideIcon;
+  label: string;
+  variant?: "default" | "ghost" | "outline";
+  onClick?: () => void;
+  size?: "sm" | "md" | "lg";
+}
+
+const TooltipButton = ({
+  icon: Icon,
+  label,
+  variant = "ghost",
+  onClick,
+  size = "sm"
+}: TooltipButtonProps) => {
+  const sizes = {
+    sm: "w-8 h-8",
+    md: "w-9 h-9",
+    lg: "w-10 h-10"
+  }
+
+  const iconSizes = {
+    sm: 16,
+    md: 18,
+    lg: 20
+  }
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={variant}
+            size="icon"
+            className={sizes[size]}
+            onClick={onClick}
+          >
+            <Icon size={iconSizes[size]} />
+            <span className="sr-only">{label}</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, TooltipButton };
