@@ -43,7 +43,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-3">
       {(open || (openMobile && isMobile)) && (
           <ActionButtons variant="sidebar" />
         )}
