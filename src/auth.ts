@@ -1,40 +1,40 @@
-import NextAuth from "next-auth"
-import GitHub from "next-auth/providers/github"
-import Google from "next-auth/providers/google"
-import Credentials from "next-auth/providers/credentials"
-import type { Provider } from "next-auth/providers"
+import NextAuth from "next-auth";
 
-const providers: Provider[] = [
-  Credentials({
-    credentials: { password: { label: "Password", type: "password" } },
-    authorize(c) {
-      if (c.password !== "password") return null
-      return {
-        id: "test",
-        name: "Test User",
-        email: "test@example.com",
+import { PrismaAdapter } from "@auth/prisma-adapter";
+
+import authConfig from "@/auth.config";
+import { prisma } from "@/lib/db";
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  ...authConfig,
+  session: { strategy: "jwt" },
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
       }
+      return token;
     },
-  }),
-  GitHub,
-  Google
-]
-
-export const providerMap = providers
-  .map((provider) => {
-    if (typeof provider === "function") {
-      const providerData = provider()
-      return { id: providerData.id, name: providerData.name }
-    } else {
-      return { id: provider.id, name: provider.name }
-    }
-  })
-  .filter((provider) => provider.id !== "credentials")
-
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers,
-  pages: {
-    signIn: "/sign-in",
-    error: "/auth-error",
+    session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
   },
-})
+  events: {
+    // El evento linkAccount se dispara cuando una cuenta (proveedor OAuth: GitHub, Google, Facebook, etc.)  se vincula a un usuario existente en tu base de datos.
+    async linkAccount({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
+});
