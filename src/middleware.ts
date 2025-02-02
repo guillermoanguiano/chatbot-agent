@@ -4,14 +4,12 @@ import authConfig from "./auth.config";
 
 const { auth } = NextAuth(authConfig);
 
-const authRoutes = ["/sign-in", "/sign-up"];
+const authRoutes = ["/sign-in", "/sign-up", "/verify-email"];
 const apiAuthPrefix = "/api/auth";
 
 export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
-
-    console.log({ isLoggedIn, path: nextUrl.pathname });
 
     if (nextUrl.pathname.startsWith(apiAuthPrefix)) {
         return NextResponse.next();

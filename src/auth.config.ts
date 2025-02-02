@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { loginSchema } from "./features/auth/schema/login-schema";
+import { signInSchema } from "./features/auth/schema/sign-in-schema";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import type { NextAuthConfig } from "next-auth";
@@ -15,13 +15,12 @@ export default {
         GitHub,
         Credentials({
             authorize: async (credentials) => {
-                const { data, success } = loginSchema.safeParse(credentials);
+                const { data, success } = signInSchema.safeParse(credentials);
 
                 if (!success) {
                     throw new Error("Invalid credentials");
                 }
 
-                // verificar si existe el usuario en la base de datos
                 const user = await prisma.user.findUnique({
                     where: {
                         email: data.email,
@@ -32,7 +31,6 @@ export default {
                     throw new Error("No user found");
                 }
 
-                // verificar si la contraseña es correcta
                 const isValid = await bcrypt.compare(data.password, user.password);
 
                 if (!isValid) {
@@ -66,7 +64,7 @@ export default {
 
                     await sendEmailVerification(user.email, token);
 
-                    throw new Error("Please check Email send verification");
+                    throw new Error("Please check Email verification");
                 }
 
                 return user;

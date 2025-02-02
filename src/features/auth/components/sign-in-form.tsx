@@ -1,9 +1,8 @@
 "use client";
 
-import { loginSchema } from "../schema/login-schema";
+import { SignInSchema, signInSchema } from "../schema/sign-in-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,29 +16,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { signInWithCredentials } from "@/actions/auth-actions";
+import { signInAction } from "@/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-
-type FormData = z.infer<typeof loginSchema>;
 
 export default function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SignInSchema>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values: FormData) {
+  async function onSubmit(values: SignInSchema) {
     setError(null);
     startTransition(async () => {
-      const response = await signInWithCredentials(values);
+      const response = await signInAction(values);
 
       if (response.error) {
         setError(response.error);
@@ -63,7 +60,7 @@ export default function SignInForm() {
                 <Input
                   {...field}
                   disabled={isPending}
-                  placeholder="m@example.com"
+                  placeholder="eg. leo@example.com"
                   type="email"
                 />
               </FormControl>
@@ -89,7 +86,7 @@ export default function SignInForm() {
         {error && <FormMessage>{error}</FormMessage>}
 
         <Button type="submit" className="w-full" disabled={isPending}>
-          {isPending ? "Loading..." : "Log in"}
+          {isPending ? "Loading..." : "Sign In"}
         </Button>
       </form>
     </Form>
