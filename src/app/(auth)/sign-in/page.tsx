@@ -24,7 +24,6 @@ import { SignInSocialsButton } from "@/features/auth/components/sign-in-socials-
 export const metadata: Metadata = {
   title: "Sign In | Chatbot Agent",
   description: "Sign in to your account",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 type ErrorMessages = {

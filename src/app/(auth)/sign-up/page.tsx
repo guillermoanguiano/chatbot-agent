@@ -16,7 +16,6 @@ import { SignInSocialsButton } from "@/features/auth/components/sign-in-socials-
 export const metadata: Metadata = {
   title: "Sign Up | Chatbot Agent",
   description: "Create your account",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function SignUpPage() {

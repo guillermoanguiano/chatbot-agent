@@ -6,7 +6,6 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Chat | Chatbot Agent",
   description: "Chat with your AI assistant",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function ChatLayout({
