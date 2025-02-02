@@ -1,3 +1,5 @@
+import { Metadata } from "next";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -10,7 +12,12 @@ import { ShoppingBag, Bot } from "lucide-react";
 
 import SignUpForm from "@/features/auth/components/sign-up-form";
 import { SignInSocialsButton } from "@/features/auth/components/sign-in-socials-button";
-import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Sign Up | Chatbot Agent",
+  description: "Create your account",
+  viewport: "width=device-width, initial-scale=1",
+};
 
 export default function SignUpPage() {
   return (

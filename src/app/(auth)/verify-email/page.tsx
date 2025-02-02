@@ -6,6 +6,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Mail } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Verify Email | Chatbot Agent",
+  description: "Verify your email address",
+  viewport: "width=device-width, initial-scale=1",
+};
 
 export default function VerifyEmailPage() {
   return (
