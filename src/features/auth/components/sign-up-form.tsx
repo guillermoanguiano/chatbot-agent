@@ -23,7 +23,6 @@ import { toast } from "sonner";
 export default function SignUpForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const router = useRouter();
 
   const form = useForm<SignUpSchema>({
@@ -46,8 +45,6 @@ export default function SignUpForm() {
           return;
         }
 
-        setShowVerificationMessage(true);
-
         toast.success(
           "Registration successful! Please check your email to verify your account.",
           {
@@ -61,33 +58,6 @@ export default function SignUpForm() {
         setError("An unexpected error occurred");
       }
     });
-  }
-
-  if (showVerificationMessage) {
-    return (
-      <div className="space-y-4 text-center">
-        <h3 className="text-lg font-medium">Check your email</h3>
-        <p className="text-muted-foreground">
-          We&apos;ve sent you a verification link to your email address.
-        </p>
-        <div className="space-y-2">
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => form.reset()}
-          >
-            Use a different email
-          </Button>
-          <Button
-            variant="link"
-            className="w-full"
-            onClick={() => router.push("/sign-in")}
-          >
-            Back to sign in
-          </Button>
-        </div>
-      </div>
-    );
   }
 
   return (
