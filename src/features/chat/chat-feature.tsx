@@ -3,12 +3,12 @@
 import { useChat } from "ai/react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "./components/chat-message";
 import { WelcomeSection } from "./components/welcome-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, StopCircle } from "lucide-react";
+import { Send, StopCircle, ArrowDown } from "lucide-react";
+import { useChatScroll } from "./hooks/use-chat-scroll";
 
 export function ChatFeature() {
   const { data: session } = useSession();
@@ -19,6 +19,13 @@ export function ChatFeature() {
           "Error al procesar tu mensaje. Por favor, intenta de nuevo."
         ),
     });
+
+  const {
+    scrollAreaRef,
+    showScrollButton,
+    scrollToBottom,
+    isScrolledToBottom,
+  } = useChatScroll();
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,8 +39,11 @@ export function ChatFeature() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1">
+    <div className="flex flex-col h-full relative">
+      <div
+        className="flex-1 h-[calc(100vh-160px)] overflow-auto"
+        ref={scrollAreaRef}
+      >
         <div className="max-w-3xl mx-auto p-4 md:p-8">
           {messages.length === 0 ? (
             <WelcomeSection
@@ -57,7 +67,17 @@ export function ChatFeature() {
             </div>
           )}
         </div>
-      </ScrollArea>
+        {(showScrollButton || !isScrolledToBottom) && (
+          <Button
+            onClick={scrollToBottom}
+            className="absolute bottom-20 right-[50%] rounded-full shadow-lg animate-bounce"
+            size="icon"
+            variant="secondary"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
 
       <div className="border-t bg-background p-4">
         <form onSubmit={handleFormSubmit} className="max-w-3xl mx-auto">
@@ -70,12 +90,14 @@ export function ChatFeature() {
               disabled={isLoading}
             />
             <Button
-              type="submit"
+              type={isLoading ? "button" : "submit"}
               size="icon"
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim()}
+              variant={isLoading ? "destructive" : "default"}
+              onClick={isLoading ? stop : undefined}
             >
               {isLoading ? (
-                <StopCircle className="h-4 w-4 cursor-pointer" onClick={stop} />
+                <StopCircle className="h-4 w-4 animate-pulse" />
               ) : (
                 <Send className="h-4 w-4" />
               )}
