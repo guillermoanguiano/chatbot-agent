@@ -40,3 +40,7 @@ next-env.d.ts
 package-lock.json
 yarn.lock
 !bun.lock
+
+# Data files from ai 
+/data/*
+!data/example.md

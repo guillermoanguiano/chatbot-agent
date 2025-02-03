@@ -4,9 +4,9 @@ import { Button } from "./ui/button";
 import { LogOut, Moon, Sun, Laptop } from "lucide-react";
 import { useSidebar } from "./ui/sidebar";
 import { ActionButtons } from "./actions-buttons";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,14 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const user = {
-  name: "John Doe",
-  email: "john@example.com",
-  image: null,
-};
-
 export default function Navbar() {
   const { open, isMobile } = useSidebar();
+  const { data: session } = useSession();
   const { setTheme } = useTheme();
 
   const handleSignOut = () => {
@@ -44,7 +39,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="absolute top-0 z-50 flex h-16 w-full shrink-0 items-center justify-between border-b bg-background">
+    <header className="flex h-16 w-full shrink-0 items-center justify-between border-b bg-background">
       <div className="flex items-center pl-4">
         {(!open || isMobile) && <ActionButtons variant="navbar" />}
       </div>
@@ -56,9 +51,16 @@ export default function Navbar() {
               className="relative h-11 w-11 rounded-full hover:bg-primary/5"
             >
               <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
-                  {getInitials(user.name)}
-                </AvatarFallback>
+                {session?.user ? (
+                  <AvatarImage
+                    src={session?.user?.image || ""}
+                    alt={session?.user.name || "Avatar Image from User"}
+                  />
+                ) : (
+                  <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
+                    {getInitials(session?.user.name || "user")}
+                  </AvatarFallback>
+                )}
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -67,9 +69,9 @@ export default function Navbar() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem className="flex flex-col items-start">
-                <span className="font-medium">{user.name}</span>
+                <span className="font-medium">{session?.user.name}</span>
                 <span className="text-xs text-muted-foreground">
-                  {user.email}
+                  {session?.user.email}
                 </span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
