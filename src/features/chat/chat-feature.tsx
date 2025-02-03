@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, StopCircle, ArrowDown } from "lucide-react";
 import { useChatScroll } from "./hooks/use-chat-scroll";
+import { cn } from "@/lib/utils";
 
 export function ChatFeature() {
   const { data: session } = useSession();
@@ -20,12 +21,7 @@ export function ChatFeature() {
         ),
     });
 
-  const {
-    scrollAreaRef,
-    showScrollButton,
-    scrollToBottom,
-    isScrolledToBottom,
-  } = useChatScroll();
+  const { scrollAreaRef, showScrollButton, scrollToBottom } = useChatScroll();
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,16 +63,20 @@ export function ChatFeature() {
             </div>
           )}
         </div>
-        {(showScrollButton || !isScrolledToBottom) && (
-          <Button
-            onClick={scrollToBottom}
-            className="absolute bottom-20 right-[50%] rounded-full shadow-lg animate-bounce"
-            size="icon"
-            variant="secondary"
-          >
-            <ArrowDown className="h-4 w-4" />
-          </Button>
-        )}
+
+        <Button
+          onClick={scrollToBottom}
+          className={cn(
+            "absolute bottom-20 right-[50%] rounded-full shadow-lg animate-bounce",
+            {
+              hidden: !showScrollButton,
+            }
+          )}
+          size="icon"
+          variant="secondary"
+        >
+          <ArrowDown className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="border-t bg-background p-4">

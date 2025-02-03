@@ -4,7 +4,6 @@ interface UseChatScrollReturn {
   scrollAreaRef: React.RefObject<HTMLDivElement>;
   showScrollButton: boolean;
   scrollToBottom: () => void;
-  isScrolledToBottom: boolean;
 }
 
 export function useChatScroll(): UseChatScrollReturn {
@@ -41,8 +40,7 @@ export function useChatScroll(): UseChatScrollReturn {
 
   return {
     scrollAreaRef,
-    showScrollButton,
+    showScrollButton: showScrollButton || !isScrolledToBottom(),
     scrollToBottom,
-    isScrolledToBottom: isScrolledToBottom(),
   };
 }
