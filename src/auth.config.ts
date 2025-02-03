@@ -25,10 +25,22 @@ export default {
                     where: {
                         email: data.email,
                     },
+                    include: {
+                        accounts: true,
+                    },
                 });
 
-                if (!user || !user.password) {
+                if (!user) {
                     throw new Error("No user found");
+                }
+
+                if (user.accounts && user.accounts.length > 0) {
+                    const providers = user.accounts.map(account => account.provider);
+                    throw new Error(`This email is already associated with ${providers.join(', ')}. Please sign in with ${providers.length > 1 ? 'one of those accounts' : 'that account'}.`);
+                }
+
+                if (!user.password) {
+                    throw new Error("This email is registered with a social login. Please use the appropriate sign in method.");
                 }
 
                 const isValid = await bcrypt.compare(data.password, user.password);

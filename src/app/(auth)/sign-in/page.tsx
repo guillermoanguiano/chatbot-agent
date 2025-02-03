@@ -51,6 +51,11 @@ const errorMessages: ErrorMessages = {
     description:
       "An error occurred during verification. Please try again later.",
   },
+  OAuthAccountNotLinked: {
+    title: "Account not linked",
+    description:
+      "This email is already registered with another provider. Please sign in with that provider.",
+  },
 };
 
 export default function SignInPage({
@@ -73,7 +78,7 @@ export default function SignInPage({
           <CardTitle className="text-2xl font-bold text-center">
             Sign In to ShopSmart AI
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center pb-2">
             Your AI-powered shopping assistant
           </CardDescription>
 
