@@ -8,7 +8,7 @@ import { ChatMessage } from "./components/chat-message";
 import { WelcomeSection } from "./components/welcome-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send } from "lucide-react";
+import { Send, StopCircle } from "lucide-react";
 
 export function ChatFeature() {
   const { data: session } = useSession();
@@ -33,7 +33,7 @@ export function ChatFeature() {
 
   return (
     <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 overflow-y-auto">
+      <ScrollArea className="flex-1">
         <div className="max-w-3xl mx-auto p-4 md:p-8">
           {messages.length === 0 ? (
             <WelcomeSection
@@ -75,7 +75,7 @@ export function ChatFeature() {
               disabled={!input.trim() || isLoading}
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <StopCircle className="h-4 w-4 cursor-pointer" onClick={stop} />
               ) : (
                 <Send className="h-4 w-4" />
               )}
@@ -85,16 +85,6 @@ export function ChatFeature() {
             <p className="text-xs text-muted-foreground">
               Presiona Enter para enviar. El asistente puede cometer errores.
             </p>
-            {isLoading && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={stop}
-                className="text-xs"
-              >
-                Detener generación
-              </Button>
-            )}
           </div>
         </form>
       </div>
