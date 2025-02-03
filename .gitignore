@@ -44,3 +44,5 @@ yarn.lock
 # Data files from ai 
 /data/*
 !data/example.md
+
+/prisma/dev.db
