@@ -5,14 +5,7 @@ import { toast } from "sonner";
 import { ChatMessage } from "./components/chat-message";
 import { WelcomeSection } from "./components/welcome-section";
 import { Button } from "@/components/ui/button";
-import {
-  StopCircle,
-  ArrowDown,
-  Send,
-  SendHorizonal,
-  SendHorizonalIcon,
-  SendIcon,
-} from "lucide-react";
+import { StopCircle, ArrowDown, SendIcon } from "lucide-react";
 import { useChatScroll } from "./hooks/use-chat-scroll";
 import { cn } from "@/lib/utils";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";

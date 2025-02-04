@@ -16,7 +16,9 @@ export default function ChatLayout({
       <SidebarProvider>
         <div className="flex h-screen overflow-hidden w-screen">
           <AppSidebar />
-          <main className="flex-1 h-screen py-8 bg-background">{children}</main>
+          <main className="flex-1 h-screen py-8 px-2 bg-background">
+            {children}
+          </main>
         </div>
       </SidebarProvider>
     </SessionProvider>

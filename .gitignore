@@ -45,4 +45,6 @@ yarn.lock
 /data/*
 !data/example.md
 
+# Possible db files
 /prisma/dev.db
+postgres_data/

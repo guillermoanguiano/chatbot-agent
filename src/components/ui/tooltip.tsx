@@ -44,19 +44,13 @@ const TooltipButton = ({
   label,
   variant = "ghost",
   onClick,
-  size = "sm"
+  size = "sm",
 }: TooltipButtonProps) => {
   const sizes = {
     sm: "w-8 h-8",
     md: "w-9 h-9",
-    lg: "w-10 h-10"
-  }
-
-  const iconSizes = {
-    sm: 16,
-    md: 18,
-    lg: 20
-  }
+    lg: "w-10 h-10",
+  };
 
   return (
     <TooltipProvider>
@@ -68,7 +62,7 @@ const TooltipButton = ({
             className={sizes[size]}
             onClick={onClick}
           >
-            <Icon size={iconSizes[size]} />
+            <Icon size={sizes[size]} />
             <span className="sr-only">{label}</span>
           </Button>
         </TooltipTrigger>
@@ -76,6 +70,12 @@ const TooltipButton = ({
       </Tooltip>
     </TooltipProvider>
   );
-}
+};
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, TooltipButton };
+export {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+  TooltipButton,
+};

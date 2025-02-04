@@ -9,11 +9,11 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import {
-  ShoppingBag,
-  Bot,
   CheckCircle2,
   XCircle,
   AlertCircle,
+  Dumbbell,
+  Apple,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
@@ -72,14 +72,14 @@ export default function SignInPage({
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center space-x-2">
-            <ShoppingBag className="h-6 w-6 text-primary" />
-            <Bot className="h-6 w-6 text-secondary" />
+            <Dumbbell className="h-6 w-6 text-primary" />
+            <Apple className="h-6 w-6 text-secondary" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">
-            Sign In to ShopSmart AI
+            Sign In to Fitbo.ai
           </CardTitle>
           <CardDescription className="text-center pb-2">
-            Your AI-powered shopping assistant
+            Your AI-powered fitness assistant
           </CardDescription>
 
           {isVerified && (

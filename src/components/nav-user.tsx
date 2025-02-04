@@ -63,7 +63,7 @@ export function NavUser({
   }
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className="p-1.5 flex items-center justify-center">
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -107,16 +107,25 @@ export function NavUser({
                   <span>Tema</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem onClick={() => setTheme("light")}>
+                  <DropdownMenuSubContent className="bg-sidebar-accent text-sidebar-accent-foreground">
+                    <DropdownMenuItem
+                      className="cursor-pointer mt-1 hover:!bg-primary/10"
+                      onClick={() => setTheme("light")}
+                    >
                       <Sun className="mr-2 h-4 w-4" />
                       <span>Claro</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    <DropdownMenuItem
+                      onClick={() => setTheme("dark")}
+                      className="cursor-pointer mt-1 hover:!bg-primary/10"
+                    >
                       <Moon className="mr-2 h-4 w-4" />
                       <span>Oscuro</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("system")}>
+                    <DropdownMenuItem
+                      className="cursor-pointer mt-1 hover:!bg-primary/10"
+                      onClick={() => setTheme("system")}
+                    >
                       <Laptop className="mr-2 h-4 w-4" />
                       <span>Sistema</span>
                     </DropdownMenuItem>
