@@ -12,9 +12,12 @@ import {
   SidebarHeader,
   SidebarSeparator,
   useSidebar,
+  SidebarFooter,
 } from "./ui/sidebar";
 import { MessageSquare } from "lucide-react";
 import { ActionButtons } from "./actions-buttons";
+import { NavUser } from "./nav-user";
+import { useSession } from "next-auth/react";
 
 // Dummy data for recent chats
 const recentChats = [
@@ -40,11 +43,12 @@ const recentChats = [
 
 export function AppSidebar() {
   const { open, openMobile, isMobile } = useSidebar();
+  const { data: session, status } = useSession();
 
   return (
     <Sidebar>
       <SidebarHeader className="p-3">
-      {(open || (openMobile && isMobile)) && (
+        {(open || (openMobile && isMobile)) && (
           <ActionButtons variant="sidebar" />
         )}
       </SidebarHeader>
@@ -78,6 +82,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={session?.user} status={status} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

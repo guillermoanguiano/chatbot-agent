@@ -1,18 +1,23 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { ChatMessage } from "./components/chat-message";
 import { WelcomeSection } from "./components/welcome-section";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Send, StopCircle, ArrowDown } from "lucide-react";
+import {
+  StopCircle,
+  ArrowDown,
+  Send,
+  SendHorizonal,
+  SendHorizonalIcon,
+  SendIcon,
+} from "lucide-react";
 import { useChatScroll } from "./hooks/use-chat-scroll";
 import { cn } from "@/lib/utils";
+import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 
 export function ChatFeature() {
-  const { data: session } = useSession();
   const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
     useChat({
       onError: () =>
@@ -35,15 +40,19 @@ export function ChatFeature() {
   };
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div
+      className={cn(
+        "flex flex-col h-full relative bg-background",
+        messages.length === 0 && "justify-center h-auto mt-14"
+      )}
+    >
       <div
-        className="flex-1 h-[calc(100vh-160px)] overflow-auto"
+        className={cn("overflow-auto", messages.length > 0 && "h-dvh")}
         ref={scrollAreaRef}
       >
-        <div className="max-w-3xl mx-auto p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
           {messages.length === 0 ? (
             <WelcomeSection
-              userName={session?.user?.name}
               onPromptSelect={(text) =>
                 handleInputChange({
                   target: { value: text },
@@ -63,11 +72,12 @@ export function ChatFeature() {
             </div>
           )}
         </div>
+        <br />
 
         <Button
           onClick={scrollToBottom}
           className={cn(
-            "absolute bottom-20 right-[50%] rounded-full shadow-lg animate-bounce",
+            "absolute bottom-28 right-[50%] rounded-full shadow-lg animate-bounce",
             {
               hidden: !showScrollButton,
             }
@@ -79,15 +89,17 @@ export function ChatFeature() {
         </Button>
       </div>
 
-      <div className="border-t bg-background p-4">
-        <form onSubmit={handleFormSubmit} className="max-w-3xl mx-auto">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Escribe un mensaje..."
+      <div>
+        <form onSubmit={handleFormSubmit} className="max-w-4xl mx-auto">
+          <div className="relative">
+            <AutosizeTextarea
+              placeholder="Escribe un mensaje a tu asistente"
               value={input}
               onChange={handleInputChange}
-              className="flex-1"
+              className="flex-1 pr-12 textarea"
               disabled={isLoading}
+              rows={3}
+              maxHeight={250}
             />
             <Button
               type={isLoading ? "button" : "submit"}
@@ -95,11 +107,12 @@ export function ChatFeature() {
               disabled={!input.trim()}
               variant={isLoading ? "destructive" : "default"}
               onClick={isLoading ? stop : undefined}
+              className="absolute right-2.5 bottom-2.5"
             >
               {isLoading ? (
                 <StopCircle className="h-4 w-4 animate-pulse" />
               ) : (
-                <Send className="h-4 w-4" />
+                <SendIcon className="h-4 w-4" />
               )}
             </Button>
           </div>
