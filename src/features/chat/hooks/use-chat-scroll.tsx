@@ -27,7 +27,7 @@ export function useChatScroll(): UseChatScrollReturn {
       scrollArea.addEventListener("scroll", handleScroll);
       return () => scrollArea.removeEventListener("scroll", handleScroll);
     }
-  });
+  }, []);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {

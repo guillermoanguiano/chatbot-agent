@@ -22,29 +22,85 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const recentChats = [
-  {
-    id: 1,
-    title: "Diet Plan for Weight Loss",
-    date: "2024-03-10",
-  },
-  {
-    id: 2,
-    title: "Workout Plan for Beginners",
-    date: "2024-03-09",
-  },
-  {
-    id: 3,
-    title: "Diet Plan for Muscle Gain",
-    date: "2024-03-08",
-  },
-];
+import { useChat } from "ai/react";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AppSidebar() {
-  const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
+  const [isLoading, setIsLoading] = useState(true);
+  const {
+    open,
+    openMobile,
+    isMobile,
+    toggleSidebar,
+    setChats,
+    chats,
+    reloadChats,
+  } = useSidebar();
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { setMessages } = useChat();
+
+  const handleNewChat = () => {
+    setMessages([]);
+    router.push("/");
+  };
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/chat");
+        const data = await response.json();
+        setChats(data);
+      } catch (error) {
+        console.error("Failed to fetch chats:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, [reloadChats]);
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <>
+          <Skeleton className="h-8 w-full mb-2" />
+          <Skeleton className="h-8 w-full mb-2" />
+          <Skeleton className="h-8 w-full mb-2" />
+          <Skeleton className="h-8 w-full opacity-60" />
+        </>
+      );
+    }
+
+    if (chats.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center p-4 text-center text-muted-foreground">
+          <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
+          <p className="text-sm">No hay chats disponibles</p>
+          <p className="text-xs">Crea uno nuevo para comenzar</p>
+        </div>
+      );
+    }
+
+    return chats.map((chat) => (
+      <SidebarMenuItem key={chat.id}>
+        <SidebarMenuButton asChild>
+          <Link
+            href={`/chat/${chat.id}`}
+            className="flex justify-start !items-start"
+          >
+            <div className="flex items-center gap-2">
+              <MessageSquare size={16} />
+              <span className="font-medium">{chat.title}</span>
+            </div>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    ));
+  };
 
   return (
     <Sidebar
@@ -75,17 +131,14 @@ export function AppSidebar() {
           />
         </div>
 
-        <div className="mt-6 mx-auto line-clamp-1">
+        <div className="my-4 mx-auto line-clamp-1">
           {open ? (
-            <Button
-              className="flex items-center gap-2"
-              onClick={() => router.push("/")}
-            >
+            <Button className="flex items-center gap-2" onClick={handleNewChat}>
               <PlusCircleIcon size={24} />
               New Chat
             </Button>
           ) : (
-            <PlusCircleIcon size={24} onClick={() => router.push("/")} />
+            <PlusCircleIcon size={24} onClick={handleNewChat} />
           )}
         </div>
       </SidebarHeader>
@@ -96,23 +149,7 @@ export function AppSidebar() {
         <SidebarGroup className={cn({ hidden: !open && !openMobile })}>
           <SidebarGroupLabel className="mb-2">Recent Chats</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {recentChats.map((chat) => (
-                <SidebarMenuItem key={chat.id}>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href={`/chat/${chat.id}`}
-                      className="flex justify-start !items-start"
-                    >
-                      <div className="flex items-center gap-2">
-                        <MessageSquare size={16} />
-                        <span className="font-medium">{chat.title}</span>
-                      </div>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{renderContent()}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

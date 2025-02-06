@@ -1,69 +1,96 @@
 "use client";
 
-import { useChat } from "ai/react";
-import { toast } from "sonner";
+import { Message, useChat } from "ai/react";
 import { ChatMessage } from "./components/chat-message";
-import { WelcomeSection } from "./components/welcome-section";
 import { Button } from "@/components/ui/button";
 import { StopCircle, ArrowDown, SendIcon } from "lucide-react";
 import { useChatScroll } from "./hooks/use-chat-scroll";
 import { cn } from "@/lib/utils";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import { toast } from "sonner";
+import { ChatMessageSkeleton } from "./components/chat-message-skeleton";
+import { useEffect } from "react";
 
-export function ChatFeature() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
-    useChat({
-      onError: () =>
-        toast.error(
-          "Error al procesar tu mensaje. Por favor, intenta de nuevo."
-        ),
-    });
+interface ChatFeatureProps {
+  firstMessage?: Message;
+  lastMessages: Message[];
+  chatId: string;
+}
 
+export function ChatFeature({
+  firstMessage,
+  lastMessages,
+  chatId,
+}: ChatFeatureProps) {
+  const {
+    messages,
+    input,
+    reload,
+    handleInputChange,
+    handleSubmit: handleSubmitAI,
+    isLoading,
+    stop,
+  } = useChat({
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    id: chatId,
+    initialMessages: lastMessages,
+    // sendExtraMessageFields: true,
+  });
   const { scrollAreaRef, showScrollButton, scrollToBottom } = useChatScroll();
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    const submitFirstMessage = async () => {
+      if (!firstMessage) return;
+
+      try {
+        await reload();
+      } catch (error) {
+        console.error("Failed to send first message:", error);
+        toast.error("Error al enviar el primer mensaje");
+      }
+    };
+
+    // Only submit if we have a firstMessage and it's the only message
+    if (firstMessage) {
+      submitFirstMessage();
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     try {
-      await handleSubmit(e);
-    } catch {
-      toast.error("Error al enviar el mensaje");
+      await handleSubmitAI(e);
+    } catch (error) {
+      console.error("Failed to send message:", error);
     }
   };
 
   return (
-    <div
-      className={cn(
-        "flex flex-col h-full relative bg-background",
-        messages.length === 0 && "justify-center h-auto mt-14"
-      )}
-    >
-      <div
-        className={cn("overflow-auto", messages.length > 0 && "h-dvh")}
-        ref={scrollAreaRef}
-      >
+    <div className="flex flex-col h-full relative bg-background">
+      <div className="overflow-auto h-dvh" ref={scrollAreaRef}>
         <div className="max-w-4xl mx-auto">
-          {messages.length === 0 ? (
-            <WelcomeSection
-              onPromptSelect={(text) =>
-                handleInputChange({
-                  target: { value: text },
-                } as React.ChangeEvent<HTMLInputElement>)
-              }
-            />
-          ) : (
-            <div className="space-y-4">
-              {messages.map((message) => (
+          <div className="space-y-4">
+            {messages.length === 0 ? (
+              <>
+                <ChatMessageSkeleton direction="right" />
+                <ChatMessageSkeleton direction="left" />
+                <ChatMessageSkeleton direction="right" />
+              </>
+            ) : (
+              messages.map((message) => (
                 <ChatMessage
                   key={message.id}
                   id={message.id}
                   content={message.content}
                   role={message.role as "user" | "assistant"}
                 />
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
         <br />
 
@@ -83,36 +110,39 @@ export function ChatFeature() {
       </div>
 
       <div>
-        <form onSubmit={handleFormSubmit} className="max-w-4xl mx-auto">
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
           <div className="relative">
             <AutosizeTextarea
               placeholder="Escribe un mensaje a tu asistente"
               value={input}
               onChange={handleInputChange}
+              name="message"
               className="flex-1 pr-12 textarea"
               disabled={isLoading}
               rows={3}
               maxHeight={250}
             />
-            <Button
-              type={isLoading ? "button" : "submit"}
-              size="icon"
-              disabled={!input.trim()}
-              variant={isLoading ? "destructive" : "default"}
-              onClick={isLoading ? stop : undefined}
-              className="absolute right-2.5 bottom-2.5"
-            >
-              {isLoading ? (
+            {isLoading ? (
+              <Button
+                type={isLoading ? "button" : "submit"}
+                size="icon"
+                disabled={!input.trim()}
+                variant="destructive"
+                onClick={stop}
+                className="absolute right-2.5 bottom-2.5"
+              >
                 <StopCircle className="h-4 w-4 animate-pulse" />
-              ) : (
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                size="icon"
+                variant="default"
+                className="absolute right-2.5 bottom-2.5"
+              >
                 <SendIcon className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          <div className="flex justify-between items-center mt-2">
-            <p className="text-xs text-muted-foreground">
-              Presiona Enter para enviar. El asistente puede cometer errores.
-            </p>
+              </Button>
+            )}
           </div>
         </form>
       </div>

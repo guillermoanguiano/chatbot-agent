@@ -1,3 +1,4 @@
+"use client";
 import { Card } from "@/components/ui/card";
 import { Code, MessageSquare, Sparkles, Wand2 } from "lucide-react";
 import type { ExamplePrompt } from "../types";

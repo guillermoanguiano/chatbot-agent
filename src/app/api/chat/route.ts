@@ -1,79 +1,66 @@
-import { smoothStream, streamText } from "ai";
+import { convertToCoreMessages, Message, smoothStream, streamText } from "ai";
 import { groq } from "@ai-sdk/groq";
-import { getContext } from "@/lib/context";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
     try {
         const session = await auth();
-        if (!session?.user) {
+        if (!session?.user || !session.user?.id) {
             return NextResponse.json(
                 { error: "Unauthorized" },
                 { status: 401 }
             );
         }
+        const { messages, id }: { messages: Message[], id: string } = await req.json();
 
-        const { messages } = await req.json();
-        if (!messages || !Array.isArray(messages) || messages.length === 0) {
-            return NextResponse.json(
-                { error: "Invalid request format" },
-                { status: 400 }
-            );
-        }
+        const lastMessage = messages[messages.length - 1].content;
 
-        const lastMessage = messages[messages.length - 1].content.toLowerCase();
+        const existingMessage = await prisma.logMessage.findFirst({
+            where: {
+                chatTitleId: id,
+                messageIn: lastMessage,
+            }
+        });
 
-        const contextKeywords = {
-            diet: ["dieta", "alimentación", "nutrición", "comer", "comida"],
-            workout: ["ejercicio", "rutina", "entrenamiento", "gimnasio", "músculo"]
-        };
+        const logMessage = existingMessage || await prisma.logMessage.create({
+            data: {
+                userId: session.user.id,
+                chatTitleId: id,
+                messageIn: lastMessage,
+                messageOut: "",
+                response: "",
+                tokenRead: 0,
+                tokenGen: 0,
+            },
+        });
 
-        const isDietQuery = contextKeywords.diet.some(keyword => lastMessage.includes(keyword));
-        const context = await getContext(isDietQuery ? "diet" : "workout");
-
-        const systemPrompt = `
-            Eres "FitCoach", un experto certificado en nutrición deportiva y entrenamiento personal.
-
-            **Instrucciones Específicas:**
-            1. Usa esta información como base principal para tus respuestas:
-            ${context}
-
-            2. Si no hay datos específicos en el contexto:
-               - Proporciona recomendaciones basadas en ciencia deportiva actualizada
-               - Siempre prioriza la seguridad del usuario
-               - Sugiere alternativas para diferentes niveles de experiencia
-
-            3. Formato de Respuesta:
-               - Usa Markdown para estructurar tus respuestas
-               - Incluye viñetas para listar puntos importantes
-               - Destaca advertencias o puntos clave en **negrita**
-               - Separa la información en secciones claras
-
-            4. Consideraciones de Seguridad:
-               - Incluye disclaimers cuando sea necesario
-               - Recomienda consultar profesionales de la salud cuando apropiadosee
-               - No des consejos médicos específicos
-
-            5. Personalización:
-               - Adapta las respuestas al nivel del usuario
-               - Ofrece variantes o alternativas cuando sea posible
-               - Se empático y motivador
-
-            Usuario Actual: ${session.user.name || "Usuario"}
-            Tipo de Consulta: ${isDietQuery ? "Nutrición" : "Entrenamiento"}
-        `;
+        const systemPrompt = `Eres Fitbo un assistente profesiona sobre nutrición deportiva y entrenamiento personal.`;
 
         const stream = streamText({
             model: groq("llama3-70b-8192"),
             system: systemPrompt,
-            messages: messages,
-            temperature: 0.7,
+            messages: convertToCoreMessages(messages),
+            temperature: 0,
             maxTokens: 1000,
+            abortSignal: req.signal,
             experimental_transform: smoothStream(),
-        });
-
-        console.log(`Chat request from ${session.user.email}: ${lastMessage}`);
+            async onFinish({ response, usage }) {
+                const aiResponse = response.messages[response.messages.length - 1].content[0] as { text?: string };
+                await prisma.logMessage.update({
+                    where: { id: logMessage.id },
+                    data: {
+                        messageOut: aiResponse?.text || "",
+                        response: response.modelId || "",
+                        tokenRead: usage.totalTokens ?? 0,
+                        tokenGen: usage.completionTokens ?? 0,
+                    },
+                });
+            },
+        })
 
         return stream.toDataStreamResponse();
 
@@ -83,5 +70,25 @@ export async function POST(req: Request) {
             { error: "Internal server error" },
             { status: 500 }
         );
+    }
+}
+
+export async function GET() {
+    try {
+        const chats = await prisma.chatTitle.findMany({
+            select: {
+                id: true,
+                title: true,
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: 10,
+        });
+
+        return NextResponse.json(chats);
+    } catch (error) {
+        console.error("Failed to fetch chats:", error);
+        return NextResponse.error();
     }
 }

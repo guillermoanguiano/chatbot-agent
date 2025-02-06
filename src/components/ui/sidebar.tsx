@@ -32,6 +32,11 @@ const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
+type Chat = {
+  id: string;
+  title: string;
+};
+
 type SidebarContext = {
   state: "expanded" | "collapsed";
   open: boolean;
@@ -40,6 +45,10 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  chats: Chat[];
+  setChats: (chats: Chat[]) => void;
+  reloadChats: boolean;
+  setReloadChats: (reload: boolean) => void;
 };
 
 const SidebarContext = React.createContext<SidebarContext | null>(null);
@@ -74,6 +83,8 @@ const SidebarProvider = React.forwardRef<
     ref
   ) => {
     const isMobile = useIsMobile();
+    const [chats, setChats] = React.useState<Chat[]>([]);
+    const [reloadChats, setReloadChats] = React.useState(false);
     const [openMobile, setOpenMobile] = React.useState(false);
 
     // This is the internal state of the sidebar.
@@ -131,8 +142,24 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        chats,
+        setChats,
+        reloadChats,
+        setReloadChats,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [
+        state,
+        open,
+        setOpen,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+        chats,
+        setChats,
+        reloadChats,
+        setReloadChats,
+      ]
     );
 
     return (
