@@ -21,15 +21,14 @@ export async function POST(req: Request) {
 
         const existingMessage = await prisma.logMessage.findFirst({
             where: {
-                chatTitleId: id,
+                chatId: id,
                 messageIn: lastMessage,
             }
         });
 
         const logMessage = existingMessage || await prisma.logMessage.create({
             data: {
-                userId: session.user.id,
-                chatTitleId: id,
+                chatId: id,
                 messageIn: lastMessage,
                 messageOut: "",
                 response: "",
@@ -75,10 +74,22 @@ export async function POST(req: Request) {
 
 export async function GET() {
     try {
-        const chats = await prisma.chatTitle.findMany({
+        const session = await auth();
+
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+        const chats = await prisma.chats.findMany({
             select: {
                 id: true,
                 title: true,
+            },
+            where: {
+                userId: session?.user.id,
             },
             orderBy: {
                 createdAt: 'desc'

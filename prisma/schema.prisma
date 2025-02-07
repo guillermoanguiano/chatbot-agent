@@ -22,6 +22,7 @@ model User {
   role          Role      @default(user)
 
   accounts Account[]
+  chats    Chats[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -56,24 +57,26 @@ model VerificationToken {
   @@id([identifier])
 }
 
-model ChatTitle {
+model Chats {
   id          String       @id @default(uuid())
+  userId      String
   title       String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   logMessages LogMessage[]
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model LogMessage {
-  id          String    @id @default(uuid())
-  userId      String
-  chatTitleId String
-  messageIn   String
-  messageOut  String
-  response    String
-  tokenRead   Int
-  tokenGen    Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  chatTitle   ChatTitle @relation(fields: [chatTitleId], references: [id])
+  id         String   @id @default(uuid())
+  chatId     String
+  messageIn  String
+  messageOut String
+  response   String
+  tokenRead  Int
+  tokenGen   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  chat       Chats    @relation(fields: [chatId], references: [id])
 }

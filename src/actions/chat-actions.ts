@@ -11,12 +11,12 @@ export async function createChat(message: string) {
         return
     }
 
-    const chat = await prisma.chatTitle.create({
+    const chat = await prisma.chats.create({
         data: {
             title: message.slice(0, 30),
+            userId: session.user.id,
             logMessages: {
                 create: {
-                    userId: session.user.id,
                     messageIn: message,
                     messageOut: "",
                     response: "",
@@ -31,20 +31,3 @@ export async function createChat(message: string) {
     return chat
 
 }
-
-// export async function saveMessage(chatId: string, userId: string, messageIn: string, messageOut: string) {
-//     const message = await prisma.logMessage.create({
-//         data: {
-//             chatTitleId: chatId,
-//             userId,
-//             messageIn,
-//             messageOut,
-//             response: "",
-//             tokenRead: 0,
-//             tokenGen: 0,
-//         },
-//     })
-
-//     revalidatePath(`/chat/${chatId}`)
-//     return message
-// }

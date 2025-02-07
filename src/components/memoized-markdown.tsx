@@ -8,9 +8,9 @@ function parseMarkdownIntoBlocks(markdown: string): string[] {
 }
 
 const MemoizedMarkdownBlock = memo(
-  ({ content }: { content: string }) => {
-    return <ReactMarkdown>{content}</ReactMarkdown>;
-  },
+  ({ content }: { content: string }) => (
+    <ReactMarkdown>{content}</ReactMarkdown>
+  ),
   (prevProps, nextProps) => {
     if (prevProps.content !== nextProps.content) return false;
     return true;

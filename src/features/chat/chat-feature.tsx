@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 import { toast } from "sonner";
 import { ChatMessageSkeleton } from "./components/chat-message-skeleton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ChatFeatureProps {
   firstMessage?: Message;
@@ -17,11 +17,8 @@ interface ChatFeatureProps {
   chatId: string;
 }
 
-export function ChatFeature({
-  firstMessage,
-  lastMessages,
-  chatId,
-}: ChatFeatureProps) {
+export function ChatFeature({ lastMessages, chatId }: ChatFeatureProps) {
+  const [hasInitialSubmit, setHasInitialSubmit] = useState(false);
   const {
     messages,
     input,
@@ -36,26 +33,28 @@ export function ChatFeature({
     },
     id: chatId,
     initialMessages: lastMessages,
-    // sendExtraMessageFields: true,
   });
   const { scrollAreaRef, showScrollButton, scrollToBottom } = useChatScroll();
 
   useEffect(() => {
-    const submitFirstMessage = async () => {
-      if (!firstMessage) return;
+    const submitInitialMessage = async () => {
+      if (hasInitialSubmit) return;
+
+      const lastMessage = messages[messages.length - 1];
+      if (!lastMessage || lastMessage.role !== "user") return;
 
       try {
         await reload();
+        setHasInitialSubmit(true);
       } catch (error) {
-        console.error("Failed to send first message:", error);
-        toast.error("Error al enviar el primer mensaje");
+        console.error("Failed to send initial message:", error);
       }
     };
 
-    // Only submit if we have a firstMessage and it's the only message
-    if (firstMessage) {
-      submitFirstMessage();
+    if (messages.length === 1) {
+      submitInitialMessage();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

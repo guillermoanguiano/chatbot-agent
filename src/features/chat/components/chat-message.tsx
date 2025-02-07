@@ -1,25 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Copy, Check, Laptop } from "lucide-react";
 import type { ChatMessageProps } from "../types";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { MemoizedMarkdown } from "@/components/memoized-markdown";
 
-export function ChatMessage({ id, content, role }: ChatMessageProps) {
+const ChatMessageComponent = ({ id, content, role }: ChatMessageProps) => {
   const [copied, setCopied] = useState<string | null>(null);
 
-  const copyToClipboard = async (content: string, messageId: string) => {
-    try {
-      await navigator.clipboard.writeText(content);
-      setCopied(messageId);
-      setTimeout(() => setCopied(null), 2000);
-      toast.success("Contenido copiado al portapapeles");
-    } catch {
-      toast.error("Error al copiar el contenido");
-    }
-  };
+  const copyToClipboard = useCallback(
+    async (content: string, messageId: string) => {
+      try {
+        await navigator.clipboard.writeText(content);
+        setCopied(messageId);
+        setTimeout(() => setCopied(null), 2000);
+        toast.success("Contenido copiado");
+      } catch {
+        toast.error("Error al copiar");
+      }
+    },
+    []
+  );
   return (
     <div
       className={cn(
@@ -64,4 +67,8 @@ export function ChatMessage({ id, content, role }: ChatMessageProps) {
       </div>
     </div>
   );
-}
+};
+
+ChatMessageComponent.displayName = "ChatMessage";
+
+export const ChatMessage = memo(ChatMessageComponent);

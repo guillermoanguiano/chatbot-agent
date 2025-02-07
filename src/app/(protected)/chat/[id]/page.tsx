@@ -13,7 +13,7 @@ type ChatSpecificPageProps = {
 export async function generateMetadata({
   params: { id },
 }: ChatSpecificPageProps): Promise<Metadata> {
-  const chat = await prisma.chatTitle.findUnique({
+  const chat = await prisma.chats.findUnique({
     where: { id },
   });
 
@@ -26,7 +26,7 @@ export async function generateMetadata({
 export default async function ChatSpecificPage({
   params: { id },
 }: ChatSpecificPageProps) {
-  const chat = await prisma.chatTitle.findUnique({
+  const chat = await prisma.chats.findUnique({
     where: { id },
     include: {
       logMessages: {
