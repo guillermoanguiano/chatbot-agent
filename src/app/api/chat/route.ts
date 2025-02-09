@@ -3,6 +3,8 @@ import { groq } from "@ai-sdk/groq";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { getContext } from "@/lib/context";
 
 export const maxDuration = 30;
 
@@ -10,14 +12,14 @@ export async function POST(req: Request) {
     try {
         const session = await auth();
         if (!session?.user || !session.user?.id) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            redirect("/sign-in");
         }
         const { messages, id }: { messages: Message[], id: string } = await req.json();
 
         const lastMessage = messages[messages.length - 1].content;
+
+        const context1 = await getContext("diet");
+        const context2 = await getContext("workout");
 
         const existingMessage = await prisma.logMessage.findFirst({
             where: {
@@ -37,7 +39,18 @@ export async function POST(req: Request) {
             },
         });
 
-        const systemPrompt = `Eres Fitbo un assistente profesiona sobre nutrición deportiva y entrenamiento personal.`;
+        const systemPrompt = `Eres Fitbo un assistente profesiona sobre nutrición deportiva y entrenamiento personal.
+            Comportate como entrenador personal y responde a las preguntas de tus clientes.
+            Si necesitas informacion sobre un cliente, puedes preguntar.
+
+            Basa tus respuestas en esta informacion para dar la mejor respuesta posible.
+            ${context1}
+            ${context2}
+
+            Usuario: ${session.user.name}
+
+            ${lastMessage}
+        `;
 
         const stream = streamText({
             model: groq("llama3-70b-8192"),
@@ -77,10 +90,7 @@ export async function GET() {
         const session = await auth();
 
         if (!session?.user?.id) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            redirect("/sign-in");
         }
 
         const chats = await prisma.chats.findMany({

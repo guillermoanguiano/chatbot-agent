@@ -85,7 +85,7 @@ export function AppSidebar() {
       );
     }
 
-    return chats.map((chat) => (
+    return chats?.map((chat) => (
       <SidebarMenuItem key={chat.id}>
         <SidebarMenuButton asChild>
           <Link

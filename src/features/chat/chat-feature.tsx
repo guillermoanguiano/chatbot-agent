@@ -54,6 +54,8 @@ export function ChatFeature({ lastMessages, chatId }: ChatFeatureProps) {
     if (messages.length === 1) {
       submitInitialMessage();
     }
+
+    scrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
